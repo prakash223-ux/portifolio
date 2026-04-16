@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -7,7 +7,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+# ✅ Get the parent directory (portifolio root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CLIENT_DIR = os.path.join(BASE_DIR, "client")
+
+app = Flask(__name__, static_folder=CLIENT_DIR, static_url_path="")
 CORS(app)
 
 # ✅ Database Configuration
@@ -133,6 +137,30 @@ def export():
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+# ✅ Serve static files (CSS, JS, images)
+@app.route("/images/<path:filename>")
+def serve_images(filename):
+    return send_from_directory(os.path.join(CLIENT_DIR, "images"), filename)
+
+# ✅ Serve index.html for all non-API routes (SPA fallback)
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    # If it's an API call, skip this
+    if path.startswith("submit") or path.startswith("contacts") or path.startswith("export") or path.startswith("health"):
+        return jsonify({"error": "Not Found"}), 404
+    
+    # Serve static files if they exist
+    if path and os.path.isfile(os.path.join(CLIENT_DIR, path)):
+        return send_from_directory(CLIENT_DIR, path)
+    
+    # Serve index.html as fallback
+    index_path = os.path.join(CLIENT_DIR, "index.html")
+    if os.path.isfile(index_path):
+        return send_from_directory(CLIENT_DIR, "index.html")
+    
+    return jsonify({"error": "Frontend not found"}), 404
 
 
 if __name__ == "__main__":

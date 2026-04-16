@@ -2106,12 +2106,10 @@
            submitBtn.textContent = 'Sending...';
 
            try {
-               // Determine backend URL
-               const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                   ? 'http://127.0.0.1:5000/submit'
-                   : `${window.location.origin}/api/submit`.replace('/client', '');
+               // Use relative URL - works on localhost and production
+               const submitUrl = '/submit';
 
-               const res = await fetch(backendUrl, {
+               const res = await fetch(submitUrl, {
                    method: "POST",
                    headers: {
                         "Content-Type": "application/json"
