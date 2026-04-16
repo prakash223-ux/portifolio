@@ -50,11 +50,6 @@ class Contact(db.Model):
 with app.app_context():
     db.create_all()
 
-# ✅ Root route
-@app.route("/")
-def home():
-    return jsonify({"status": "Backend running ✅", "version": "1.0"})
-
 # ✅ Health check
 @app.route("/health")
 def health():
