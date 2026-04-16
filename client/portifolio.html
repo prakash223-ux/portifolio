@@ -2101,8 +2101,17 @@
            const subject = document.getElementById('subject').value;
            const message = document.getElementById('message').value;
 
+           const submitBtn = document.querySelector('.form-submit');
+           submitBtn.disabled = true;
+           submitBtn.textContent = 'Sending...';
+
            try {
-               const res = await fetch("http://127.0.0.1:5000/submit", {
+               // Determine backend URL
+               const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                   ? 'http://127.0.0.1:5000/submit'
+                   : `${window.location.origin}/api/submit`.replace('/client', '');
+
+               const res = await fetch(backendUrl, {
                    method: "POST",
                    headers: {
                         "Content-Type": "application/json"
@@ -2115,14 +2124,21 @@
                 const data = await res.json();
 
                 if (data.status === "success") {
-                    alert("✅ Message stored successfully!");
-          document.getElementById('contactForm').reset();
+                    alert("✅ Message received! We'll contact you soon.");
+                    document.getElementById('contactForm').reset();
+                    submitBtn.textContent = 'Send Message';
+                    submitBtn.disabled = false;
             } else {
-            alert("❌ Error: " + data.message);
+                alert("❌ Error: " + (data.message || 'Something went wrong'));
+                submitBtn.textContent = 'Send Message';
+                submitBtn.disabled = false;
         }
 
     } catch (err) {
-        alert("⚠️ Backend not running!");
+        console.error("Error:", err);
+        alert("⚠️ Backend connection error. Please try again.");
+        submitBtn.textContent = 'Send Message';
+        submitBtn.disabled = false;
     }
 }
         
