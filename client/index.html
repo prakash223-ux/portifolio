@@ -2106,8 +2106,9 @@
            submitBtn.textContent = 'Sending...';
 
            try {
-               // Use relative URL - works on localhost and production
-               const submitUrl = '/submit';
+               // Backend URL - update this to your Render backend URL
+               const backendUrl = 'https://your-portifolio-backend.onrender.com'; // Replace with your actual Render URL
+               const submitUrl = `${backendUrl}/submit`;
 
                const res = await fetch(submitUrl, {
                    method: "POST",
